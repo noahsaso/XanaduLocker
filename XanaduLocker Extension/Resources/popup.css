@@ -3,11 +3,30 @@
 }
 
 body {
-    width: 100px;
-    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 2rem;
+
+    font-size: 1rem;
 
     font-family: system-ui;
     text-align: center;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#code {
+    font-size: 1.25rem;
+}
+
+#error {
+    color: red;
 }
 
 @media (prefers-color-scheme: dark) {

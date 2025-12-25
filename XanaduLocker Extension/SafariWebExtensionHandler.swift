@@ -9,6 +9,7 @@ import SafariServices
 import os.log
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+    private let suiteKeyStore = UserDefaults(suiteName: "group.com.noahsaso.XanaduLocker")!
 
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
@@ -28,12 +29,27 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         }
 
         os_log(.default, "Received message from browser.runtime.sendNativeMessage: %@ (profile: %@)", String(describing: message), profile?.uuidString ?? "none")
+        
+        var responseContents: [String: String]?
+        if let dict = message as? [String: String] {
+            if let req = dict["request"] {
+                if req == "code" {
+                    if let code = suiteKeyStore.string(forKey: "code") {
+                        responseContents = ["code": code]
+                    }
+                }
+            }
+        }
+        
+        if responseContents == nil {
+            responseContents = ["error": "Unknown request"]
+        }
 
         let response = NSExtensionItem()
         if #available(iOS 15.0, macOS 11.0, *) {
-            response.userInfo = [ SFExtensionMessageKey: [ "echo": message ] ]
+            response.userInfo = [ SFExtensionMessageKey: responseContents! ]
         } else {
-            response.userInfo = [ "message": [ "echo": message ] ]
+            response.userInfo = [ "message": responseContents! ]
         }
 
         context.completeRequest(returningItems: [ response ], completionHandler: nil)
